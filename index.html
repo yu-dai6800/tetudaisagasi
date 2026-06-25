@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>てつだいさがし｜人と町が出会う</title>
+<style>
+  :root{
+    --bg:#f7f3ec; --card:#fffdf9; --ink:#3a342c; --muted:#857c6e;
+    --accent:#c2703d; --accent-soft:#e9d4be; --line:#e7ddcd; --green:#7a8c5e;
+    --shadow:0 6px 20px rgba(120,100,70,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  header{position:sticky;top:0;z-index:10;background:rgba(247,243,236,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:6px;padding:14px 20px;flex-wrap:wrap}
+  .logo{font-weight:800;font-size:19px;margin-right:auto;display:flex;align-items:center;gap:8px}
+  .logo small{font-weight:500;color:var(--muted);font-size:12px}
+  .navbtn{border:none;background:none;cursor:pointer;font:inherit;color:var(--muted);padding:8px 12px;border-radius:999px;font-size:14px}
+  .navbtn.active{background:var(--accent-soft);color:var(--ink);font-weight:700}
+  .demo{max-width:980px;margin:10px auto 0;padding:0 20px}
+  .demobar{background:#fbf3e9;border:1px solid var(--accent-soft);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .demobar b{color:var(--ink)}
+  main{max-width:980px;margin:0 auto;padding:18px 20px 80px}
+  .view{display:none;animation:fade .35s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .hero{background:linear-gradient(135deg,#f0e3d0,#f7f3ec);border-radius:24px;padding:46px 34px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .hero h1{font-size:32px;line-height:1.4;margin-bottom:14px}
+  .hero p{color:var(--muted);max-width:560px;font-size:15px}
+  .hero .pills{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:13px}
+  .cta{display:inline-block;margin-top:26px;background:var(--accent);color:#fff;border:none;cursor:pointer;font:inherit;font-weight:700;padding:13px 28px;border-radius:999px;box-shadow:var(--shadow)}
+  .sun{position:absolute;right:-30px;top:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,#f2c879,#e9b25c);opacity:.5}
+  .how{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+  .step .n{width:30px;height:30px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:10px}
+  .step h3{font-size:15px;margin-bottom:6px}
+  .step p{font-size:13px;color:var(--muted)}
+  .sectitle{font-size:20px;margin:30px 0 4px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:18px;gap:4px}
+  .segbtn{border:none;background:none;cursor:pointer;font:inherit;font-size:14px;padding:7px 16px;border-radius:999px;color:var(--muted)}
+  .segbtn.active{background:var(--accent-soft);color:var(--ink);font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+  .card:hover{transform:translateY(-3px)}
+  .card .ph{height:130px;display:flex;align-items:center;justify-content:center;font-size:42px;overflow:hidden}
+  .ph img.phimg,.top img.phimg{width:100%;height:100%;object-fit:cover;display:block}
+  .ph svg{width:88px;height:88px}
+  .top svg{width:120px;height:120px}
+  .card .body{padding:16px}
+  .tag{display:inline-block;background:var(--accent-soft);border-radius:6px;padding:2px 9px;font-size:12px;margin-bottom:8px}
+  .tag.green{background:#dde6cd;color:var(--green)}
+  .card h3{font-size:16px;margin-bottom:6px}
+  .meta{font-size:13px;color:var(--muted);margin-top:8px}
+  .reward{margin-top:10px;font-size:13px;background:#fbf3e9;border:1px dashed var(--accent-soft);border-radius:10px;padding:8px 10px}
+  .cap{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 11px;margin-top:10px}
+  .cap.open{background:#dde6cd;color:var(--green)}
+  .cap.full{background:#efd8d2;color:#b05a44}
+  .card.isfull{opacity:.8}.card.isfull .ph{filter:grayscale(.3)}
+  .submit{margin-top:18px;background:var(--accent);color:#fff;border:none;cursor:pointer;font:inherit;font-weight:700;padding:13px 28px;border-radius:999px;width:100%}
+  .submit:disabled{background:#cfc6b8;cursor:not-allowed}
+  .cal{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+  .calhead{display:flex;align-items:center;justify-content:center;gap:24px;font-weight:800;font-size:17px;margin-bottom:14px}
+  .calnav{border:1px solid var(--line);background:#fff;cursor:pointer;width:34px;height:34px;border-radius:50%;font-size:18px;color:var(--accent)}
+  .caldow{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;color:var(--muted);margin-bottom:6px}
+  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cell{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;border:1px solid transparent}
+  .cell.day{background:#fbf6ee;cursor:pointer}
+  .cell.day:hover{border-color:var(--accent-soft)}
+  .cell.has{background:var(--accent-soft);font-weight:700}
+  .cell.sel{outline:2px solid var(--accent);outline-offset:-2px}
+  .cell .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:3px}
+  .cell.today{color:var(--accent);font-weight:800}
+  #dayPanel{margin-top:22px}
+  .dayTitle{font-weight:800;font-size:16px;margin-bottom:12px}
+  .empty{color:var(--muted);font-size:14px;background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:18px;text-align:center}
+  .detail{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+  .detail .top{height:160px;display:flex;align-items:center;justify-content:center;font-size:60px}
+  .detail .pad{padding:26px}
+  .host{display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+  .ava{width:46px;height:46px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:22px}
+  .kv{display:flex;gap:10px;font-size:14px;margin:6px 0}
+  .kv b{min-width:74px;color:var(--muted);font-weight:600}
+  .back{background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;margin-bottom:14px}
+  .rel{border-radius:14px;padding:14px;margin:16px 0;font-size:13px}
+  .rel.mediated{background:#fbf3e9;border:1px solid var(--accent-soft)}
+  .rel.direct{background:#dde6cd;border:1px solid #c4d2ac;color:var(--green)}
+  .bar{height:8px;border-radius:999px;background:#ece2d2;margin-top:8px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent)}
+  .reviews{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+  .rev{background:#fbf6ee;border-radius:12px;padding:12px;margin-top:10px;font-size:13px}
+  .rev b{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+  .form,.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:var(--shadow)}
+  .form{max-width:560px}
+  label{display:block;font-size:14px;font-weight:600;margin:16px 0 6px}
+  .hint{font-weight:400;color:var(--muted);font-size:12px}
+  input,textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font:inherit;background:#fff}
+  .photo{display:flex;align-items:center;gap:14px;margin-top:8px}
+  .photo .circle{width:64px;height:64px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:26px}
+  .toggle{display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;margin-top:10px}
+  .privacy{background:#fbf3e9;border-radius:12px;padding:14px;font-size:13px;color:var(--muted);margin-top:18px}
+  .ok{display:none;background:#dde6cd;color:var(--green);border-radius:12px;padding:14px;margin-top:16px;font-weight:600;text-align:center}
+  /* host */
+  .hpost{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .hpost h3{font-size:16px;margin-bottom:4px}
+  .applicant{display:flex;align-items:center;gap:10px;background:#fbf6ee;border-radius:12px;padding:10px 12px;margin-top:8px;flex-wrap:wrap}
+  .applicant .nm{font-weight:700}
+  .applicant .st{font-size:12px;color:var(--muted);margin-left:auto}
+  .minibtn{border:none;background:var(--green);color:#fff;cursor:pointer;font:inherit;font-size:13px;font-weight:700;padding:7px 14px;border-radius:999px}
+  .minibtn.done{background:#cfc6b8;cursor:default}
+  .accordion{margin-top:18px}
+  .acc-h{cursor:pointer;font-weight:700;color:var(--accent);background:none;border:none;font:inherit;font-weight:700}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:30px}
+  /* modal */
+  .modal{display:none;position:fixed;inset:0;background:rgba(58,52,44,.4);z-index:50;align-items:center;justify-content:center;padding:20px}
+  .modal.show{display:flex}
+  .modalbox{background:var(--card);border-radius:20px;padding:24px;max-width:420px;width:100%;box-shadow:var(--shadow)}
+  .modalbox h3{font-size:17px;margin-bottom:6px}
+  .modalbox p{font-size:13px;color:var(--muted);margin-bottom:10px}
+  @media(max-width:680px){
+    nav{padding:10px 14px;gap:4px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    nav::-webkit-scrollbar{display:none}
+    .logo{font-size:16px;margin-right:10px;white-space:nowrap}
+    .logo small{display:none}
+    .navbtn{padding:7px 10px;font-size:13px;white-space:nowrap;flex:0 0 auto}
+    .demo{padding:0 14px}.demobar{font-size:12px}
+    main{padding:14px 14px 70px}
+    .hero{padding:30px 22px;border-radius:18px}.hero h1{font-size:23px}.hero p{font-size:14px}
+    .how,.grid{grid-template-columns:1fr;gap:14px}
+    .sectitle{font-size:18px}
+    .detail .pad,.form,.panel,.hpost{padding:18px}
+    .detail .top{height:120px;font-size:46px}
+    .kv{flex-direction:column;gap:2px}.kv b{min-width:auto}
+    .calgrid{gap:3px}.cell{border-radius:9px;font-size:13px}
+    .calhead{gap:14px;font-size:16px}
+    .modalbox{padding:18px}
+    .applicant{gap:8px}.applicant .st{margin-left:0;flex-basis:100%;order:3}
+    .minibtn{margin-left:auto}
+    input,textarea,select{font-size:16px} /* iOSのズーム防止 */
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <div class="logo">🧇 てつだいさがし <small>by saule works</small></div>
+    <button class="navbtn active" data-v="home">ホーム</button>
+    <button class="navbtn" data-v="list">お手伝い募集</button>
+    <button class="navbtn" data-v="register">登録する</button>
+  </nav>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section class="view active" id="home">
+    <div class="hero">
+      <div class="sun"></div>
+      <h1>「ちょっと手伝う」が、<br>町とつながるはじまりに。</h1>
+      <p>お店・農家さん・地域活動の「手を貸してほしい」と、手伝いたい人をつなぎます。お礼は地域の人との出会いや、自然の恵み。</p>
+      <div class="pills"><span class="pill">🌾 田舎暮らしの体験</span><span class="pill">🍞 お礼は現物＆対話</span><span class="pill">🪵 サウルコイン</span></div>
+      <br><button class="cta" data-v="list">お手伝いをさがす →</button>
+    </div>
+    <h2 class="sectitle">つかいかた</h2>
+    <p class="sub">3ステップ。顔の見える、安心できるつながりを大切にしています。</p>
+    <div class="how">
+      <div class="step"><div class="n">1</div><h3>さがす</h3><p>近くの募集をのぞいて、気になるものを見つける。</p></div>
+      <div class="step"><div class="n">2</div><h3>応募する</h3><p>応募ボタンで参加が確定。定員になると締切になります。</p></div>
+      <div class="step"><div class="n">3</div><h3>会いに行く</h3><p>お手伝いして、ご飯やお話・サウルコインを受けとる。</p></div>
+    </div>
+  </section>
+
+  <!-- LIST -->
+  <section class="view" id="list">
+    <h2 class="sectitle">お手伝い募集</h2>
+    <p class="sub">受け入れ先のみなさんからの募集です。</p>
+    <div class="seg">
+      <button class="segbtn active" data-m="cards">📋 リスト</button>
+      <button class="segbtn" data-m="cal">🗓 カレンダー</button>
+    </div>
+    <div id="mode-cards"><div class="grid" id="cards"></div></div>
+    <div id="mode-cal" style="display:none">
+      <div class="cal">
+        <div class="calhead"><button class="calnav" id="prevM">‹</button><span id="calMonth"></span><button class="calnav" id="nextM">›</button></div>
+        <div class="caldow"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
+        <div class="calgrid" id="calGrid"></div>
+      </div>
+      <div id="dayPanel"></div>
+    </div>
+  </section>
+
+  <!-- DETAIL -->
+  <section class="view" id="detail">
+    <button class="back" data-v="list">← 一覧にもどる</button>
+    <div class="detail" id="detailBody"></div>
+  </section>
+
+  <!-- REGISTER -->
+  <section class="view" id="register">
+    <h2 class="sectitle">サポーター登録</h2>
+    <p class="sub">手伝いたい人の登録はこちらから。公開されるのはニックネームと、任意で顔写真・ひとことだけです。</p>
+    <div class="form">
+      <div class="privacy">🔒 <b>個人情報について</b><br>公開はニックネーム／任意の顔写真・ひとことだけ。本名・連絡先・所属は運営（サウル）のみ保管し、マッチング後に必要な範囲だけ相手へ共有します。いつでも退会・削除できます。</div>
+      <button class="submit" id="submitBtn">登録フォームへ進む →</button>
+      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px">ボタンを押すと、登録フォームが新しいタブで開きます。</p>
+      <div class="ok" id="okMsg">✓ 登録フォームを新しいタブで開きました。そちらで入力してください。</div>
+    </div>
+  </section>
+
+  <!-- HOST -->
+  <section class="view" id="host">
+    <h2 class="sectitle">ホスト画面（受け入れ先）</h2>
+    <p class="sub">募集の作成と、お手伝い完了の記録ができます。完了を押すと、その回がカウントされ、お礼（サウルコイン）と感想の入力につながります。</p>
+    <button class="acc-h" id="toggleForm">＋ 新しい募集をつくる</button>
+    <div class="form" id="newForm" style="display:none;margin-top:12px">
+      <label>タイトル</label><input id="f-title" placeholder="例：ワッフルの仕込みサポート">
+      <label>受け入れ先（ホスト名）</label><input id="f-who" value="ゆうだい">
+      <label>場所</label><input id="f-place" placeholder="例：伊予市・ワッフルのサウル">
+      <label>日付</label><input id="f-date" type="date" value="2026-07-05">
+      <label>時間</label><input id="f-when" placeholder="例：9:00〜13:00">
+      <label>定員 <span class="hint">（この人数に達したら自動で締切）</span></label><input id="f-cap" type="number" min="1" value="3">
+      <label>募集期限 <span class="hint">（この日を過ぎたら締切）</span></label><input id="f-deadline" type="date">
+      <label>写真（任意） <span class="hint">（募集カードの画像になります。なければイラスト表示）</span></label><input id="f-img" type="file" accept="image/*">
+      <label>お礼</label><input id="f-reward" placeholder="例：まかないご飯＋サウルコイン1枚">
+      <label>内容</label><textarea id="f-detail" rows="2" placeholder="どんなお手伝いか"></textarea>
+      <button class="submit" id="createBtn">この内容で募集を出す</button>
+    </div>
+    <h3 style="margin:26px 0 4px;font-size:16px">募集一覧と応募者</h3>
+    <p class="sub">「完了」を押すと、その応募者との回数が1つ進みます。</p>
+    <div id="hostList"></div>
+  </section>
+</main>
+
+<footer id="foot">てつだいさがし｜ saule works ／ ワッフルのサウル</footer>
+
+<!-- review modal -->
+<div class="modal" id="modal"><div class="modalbox">
+  <h3 id="mTitle">ひとこと感想</h3><p id="mDesc"></p>
+  <textarea id="mText" rows="3" placeholder="ありがとう、また会いたい等…"></textarea>
+  <button class="submit" id="mSave">保存する</button>
+</div></div>
+
+<script>
+  const ME="サウル";               // 体験するサポーター（例）
+  const THRESHOLD=4;               // この回数を超えると直接型へ
+  const seedPair={"ゆうだい":3};   // みきが過去にサウルと3回完了済み（デモ用）
+
+  let listings=[
+    {id:1,emoji:"🧇",bg:"#f0e3d0",tag:"お店",tagc:"",date:"2026-06-27",cap:2,who:"ゆうだい",ava:"🧇",title:"ワッフルの仕込み・接客サポート",place:"伊予市・ワッフルのサウル",when:"6/27(土) 9:00〜13:00",reward:"まかないご飯＋サウルコイン1枚",detail:"オープン準備中のワッフル店で仕込みや接客を一緒に。",bring:"動きやすい服",applicants:[{name:"たろう",status:"applied"}]},
+    {id:2,emoji:"🧇",bg:"#f0e3d0",tag:"お店",tagc:"",date:"2026-06-28",cap:2,who:"ゆうだい",ava:"🧇",title:"ワッフルの仕込み・接客サポート",place:"伊予市・ワッフルのサウル",when:"6/28(日) 9:00〜13:00",reward:"まかないご飯＋サウルコイン1枚",detail:"オープン準備中のワッフル店で仕込みや接客を一緒に。",bring:"動きやすい服",applicants:[{name:"あや",status:"applied"},{name:"けん",status:"applied"}]},
+    {id:3,emoji:"🍅",bg:"#dde6cd",tag:"農家",tagc:"green",date:"2026-06-29",cap:4,who:"たなか農園",ava:"🧑‍🌾",title:"夏野菜の収穫のお手伝い",place:"伊予市・山あいの畑",when:"6/29(月) 7:00〜10:00",reward:"採れたて野菜＋農家さんの話",detail:"トマト・きゅうりの収穫期。朝の畑は気持ちいい。",bring:"帽子・長靴",applicants:[{name:"さき",status:"applied"}]},
+    {id:4,emoji:"🍅",bg:"#dde6cd",tag:"農家",tagc:"green",date:"2026-07-03",cap:4,who:"たなか農園",ava:"🧑‍🌾",title:"夏野菜の収穫のお手伝い",place:"伊予市・山あいの畑",when:"7/3(金) 7:00〜10:00",reward:"採れたて野菜＋農家さんの話",detail:"トマト・きゅうりの収穫期。",bring:"帽子・長靴",applicants:[]},
+    {id:5,emoji:"🏮",bg:"#f0e3d0",tag:"地域活動",tagc:"",date:"2026-07-20",cap:6,who:"○○自治会",ava:"🏮",title:"夏祭りの準備スタッフ",place:"松山市・地区公民館",when:"7/20(月) 13:00〜17:00",reward:"地域の人との交流、夕食のふるまい",detail:"提灯の設営や受付準備など。",bring:"特になし",applicants:[{name:"ゆい",status:"applied"},{name:"だい",status:"applied"},{name:"のぞみ",status:"applied"}]},
+    {id:6,emoji:"📚",bg:"#dde6cd",tag:"地域活動",tagc:"green",date:"2026-07-11",cap:3,who:"みんなの台所",ava:"🍚",title:"子ども食堂のお手伝い",place:"松山市・コミュニティスペース",when:"7/11(土) 15:00〜19:00",reward:"一緒に夕食、メンバーとの交流",detail:"調理補助と配膳、子どもたちの見守り。",bring:"エプロン",applicants:[{name:"まい",status:"applied"},{name:"そう",status:"applied"},{name:"りこ",status:"applied"}]}
+  ];
+  let nextId=7;
+
+  // ---- helpers ----
+  function appliedCount(l){return l.applied!=null?l.applied:(l.applicants?l.applicants.length:0);}
+  function capInfo(l){
+    // 募集期限を過ぎていたら締切（期限日当日はまだ受付）
+    if(l.deadline){
+      const today=new Date(new Date().toDateString());
+      const dl=new Date(new Date(l.deadline).toDateString());
+      if(!isNaN(dl) && today>dl){
+        return {full:true, badge:'<span class="cap full">募集を締め切りました</span>'};
+      }
+    }
+    // Airtableから来た募集は capStatusText / status を優先
+    if(l.capStatusText!=null && l.capStatusText!==''){
+      const full = l.status==='締切' || /定員に達/.test(l.capStatusText) || (l.cap && appliedCount(l)>=l.cap);
+      return {full, badge: full?'<span class="cap full">定員に達しました</span>':`<span class="cap open">${l.capStatusText}</span>`};
+    }
+    const left=l.cap-appliedCount(l), full=left<=0;
+    return {full,left, badge: full?'<span class="cap full">定員に達しました</span>':`<span class="cap open">あと${left}名（${appliedCount(l)}/${l.cap}）</span>`};
+  }
+  // カテゴリ別イラスト（絵文字の代わり）。l.img があれば写真を優先。
+  function illust(l){
+    const t=l.tag;
+    const ink='#3a342c';
+    const wrap=(inner)=>`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><g stroke="${ink}" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round">${inner}</g></svg>`;
+    if(t==='農家') return wrap(`<path d="M60 45 c19 -3 31 14 29 31 c-2 17 -17 27 -31 26 c-16 -1 -28 -13 -27 -29 c1 -16 12 -26 29 -28 z" fill="#ef5d4e"/><path d="M60 45 c-3 -9 -11 -11 -17 -8" fill="none" stroke="#5f8a3c"/><path d="M60 45 c0 -10 4 -13 10 -14" fill="none" stroke="#5f8a3c"/><path d="M60 45 c6 -6 13 -5 16 -1" fill="none" stroke="#5f8a3c"/><circle cx="50" cy="66" r="4.5" fill="#fff" stroke="none"/>`);
+    if(t==='地域活動') return wrap(`<circle cx="88" cy="33" r="8.5" fill="#f4c95e"/><path d="M88 18 v-6 M104 33 h6 M99 22 l4 -4 M99 44 l4 4" stroke="#f0a93c" fill="none"/><rect x="32" y="60" width="30" height="29" rx="2.5" fill="#79b1a1"/><path d="M29 60 l16 -16 l16 16 z" fill="#e8894e"/><rect x="63" y="51" width="26" height="38" rx="2.5" fill="#f0b95e"/><path d="M60 51 l14.5 -14 l14.5 14 z" fill="#d96f3c"/><rect x="42" y="73" width="9" height="16" rx="1" fill="#fff"/>`);
+    return wrap(`<rect x="33" y="40" width="54" height="52" rx="13" fill="#f0b95e"/><line x1="33" y1="58" x2="87" y2="58"/><line x1="33" y1="75" x2="87" y2="75"/><line x1="51" y1="40" x2="51" y2="92"/><line x1="69" y1="40" x2="69" y2="92"/><path d="M55 34 c5 -5 -3 -9 1 -15" fill="none"/><path d="M68 34 c5 -5 -3 -9 1 -15" fill="none"/>`);
+  }
+  function phContent(l){ return l.img ? `<img class="phimg" src="${l.img}" alt="">` : illust(l); }
+
+  // サウルとそのホストの完了回数（過去seed + ライブ）
+  function pairCount(host){
+    let c=seedPair[host]||0;
+    listings.forEach(l=>{if(l.who===host)(l.applicants||[]).forEach(a=>{if(a.name===ME&&a.status==="completed")c++;});});
+    return c;
+  }
+  function isDirect(host){return pairCount(host)>=THRESHOLD;}
+  function myStatusFor(l){const a=(l.applicants||[]).find(x=>x.name===ME);return a?a.status:null;}
+
+  // ---- list cards ----
+  function renderCards(){
+    const wrap=document.getElementById('cards');wrap.innerHTML='';
+    listings.forEach(l=>{
+      const c=capInfo(l);
+      const el=document.createElement('div');el.className='card'+(c.full?' isfull':'');
+      el.innerHTML=`<div class="ph" style="background:${l.bg}">${phContent(l)}</div>
+        <div class="body"><span class="tag ${l.tagc}">${l.tag}</span><h3>${l.title}</h3>
+        <div class="meta">📍 ${l.place}</div><div class="meta">🕒 ${l.when}</div>
+        ${c.badge}<div class="reward">🎁 お礼：${l.reward}</div></div>`;
+      el.onclick=()=>openDetail(l.id);
+      wrap.appendChild(el);
+    });
+  }
+
+  // ---- detail ----
+  function openDetail(id){
+    const l=listings.find(x=>x.id===id);const c=capInfo(l);
+    const mine=myStatusFor(l);
+    const cnt=pairCount(l.who), direct=isDirect(l.who);
+    // 関係性ボックス
+    let rel = direct
+      ? `<div class="rel direct">🤝 <b>${l.who}さんのお手伝い（${cnt}回）</b>：直接型。${cnt}回ご一緒したので、運営を介さず直接やり取りできます。</div>`
+      : `<div class="rel mediated">🧭 <b>${l.who}さんのお手伝い（${cnt}/${THRESHOLD}回）</b>。確定すると運営から${l.who}さんへお伝えします。あと${THRESHOLD-cnt}回で直接型に。<div class="bar"><i style="width:${cnt/THRESHOLD*100}%"></i></div></div>`;
+    // ボタン
+    let btn;
+    if(mine==="applied") btn=`<button class="submit" disabled>応募済み（確定）</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">当日はよろしくお願いします。ホストが「完了」を押すと回数が進みます。</p>`;
+    else if(mine==="completed") btn=`<button class="submit" disabled>参加完了 ✓</button>`;
+    else if(c.full) btn=`<button class="submit" disabled>定員に達しました</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">この募集は定員に達したため応募できません。</p>`;
+    else btn=`<button class="submit" onclick="window.open(FORM_URL,'_blank')">このお手伝いに応募する →</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">応募フォーム（Airtable）が新しいタブで開きます。気になる募集の日時を添えて送ってください。運営から折り返しご連絡します。</p>`;
+    // 感想（お互い見える）
+    const done=l.applicants.filter(a=>a.status==="completed"&&(a.hostReview||a.supReview));
+    let revs="";
+    if(done.length){
+      revs=`<div class="reviews"><b style="font-size:13px">参加した人とホストの声</b>`;
+      done.forEach(a=>{
+        if(a.hostReview) revs+=`<div class="rev"><b>${l.who}さん → ${a.name}さん</b>${a.hostReview}</div>`;
+        if(a.supReview)  revs+=`<div class="rev"><b>${a.name}さん → ${l.who}さん</b>${a.supReview}</div>`;
+      });
+      revs+=`</div>`;
+    }
+    document.getElementById('detailBody').innerHTML=`
+      <div class="top" style="background:${l.bg}">${phContent(l)}</div>
+      <div class="pad">
+        <span class="tag ${l.tagc}">${l.tag}</span>
+        <h2 style="font-size:23px;margin:8px 0 12px">${l.title}</h2>
+        <div style="margin-bottom:12px">${c.badge}</div>
+        <div class="kv"><b>場所</b><span>${l.place}</span></div>
+        <div class="kv"><b>日時</b><span>${l.when}</span></div>
+        ${l.deadline?`<div class="kv"><b>募集期限</b><span>${String(l.deadline).replace(/-/g,'/')} まで</span></div>`:''}
+        <div class="kv"><b>定員</b><span>${l.cap}名（現在 ${appliedCount(l)}名）</span></div>
+        <div class="kv"><b>内容</b><span>${l.detail}</span></div>
+        <div class="kv"><b>持ち物</b><span>${l.bring}</span></div>
+        <div class="reward" style="margin-top:14px">🎁 お礼：${l.reward}</div>
+        <div class="host"><div class="ava">${l.ava}</div><div><div style="font-weight:700">${l.who}</div><div style="font-size:13px;color:var(--muted)">受け入れ先</div></div></div>
+        ${btn}${revs}
+      </div>`;
+    show('detail');
+  }
+  function applyTo(id){
+    const l=listings.find(x=>x.id===id);
+    if(capInfo(l).full){alert("定員に達しました");return;}
+    l.applicants.push({name:ME,status:"applied"});
+    alert(`応募完了（試作）。参加が確定しました。\n${isDirect(l.who)?l.who+'さんへ直接通知されます。':'運営から'+l.who+'さんへお伝えします。'}`);
+    renderAll();openDetail(id);
+  }
+
+  // ---- calendar ----
+  const MONTHS=["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+  const todayStr=new Date().toISOString().slice(0,10);
+  let viewY=2026,viewM=5,selDate=null;
+  const ymd=(y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  function renderCalendar(){
+    document.getElementById('calMonth').textContent=`${viewY}年 ${MONTHS[viewM]}`;
+    const grid=document.getElementById('calGrid');grid.innerHTML='';
+    const first=new Date(viewY,viewM,1).getDay(), days=new Date(viewY,viewM+1,0).getDate();
+    for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cell';grid.appendChild(e);}
+    for(let d=1;d<=days;d++){
+      const ds=ymd(viewY,viewM,d), has=listings.some(l=>l.date===ds);
+      const e=document.createElement('div');
+      e.className='cell day'+(has?' has':'')+(ds===todayStr?' today':'')+(ds===selDate?' sel':'');
+      e.innerHTML=`<span>${d}</span>`+(has?'<span class="dot"></span>':'');
+      e.onclick=()=>{selDate=ds;renderCalendar();renderDay();};
+      grid.appendChild(e);
+    }
+  }
+  function renderDay(){
+    const p=document.getElementById('dayPanel');
+    if(!selDate){p.innerHTML='';return;}
+    const items=listings.filter(l=>l.date===selDate), lbl=selDate.replace(/-/g,'/');
+    if(!items.length){p.innerHTML=`<div class="dayTitle">${lbl} の募集</div><div class="empty">この日の募集はまだありません。</div>`;return;}
+    let html=`<div class="dayTitle">${lbl} の募集（${items.length}件）</div><div class="grid">`;
+    items.forEach(l=>{const c=capInfo(l);
+      html+=`<div class="card${c.full?' isfull':''}" onclick="openDetail(${l.id})"><div class="ph" style="background:${l.bg}">${phContent(l)}</div>
+        <div class="body"><span class="tag ${l.tagc}">${l.tag}</span><h3>${l.title}</h3>
+        <div class="meta">📍 ${l.place}</div><div class="meta">🕒 ${l.when}</div>${c.badge}
+        <div class="reward">🎁 お礼：${l.reward}</div></div></div>`;});
+    p.innerHTML=html+'</div>';
+  }
+
+  // ---- host ----
+  function renderHost(){
+    const wrap=document.getElementById('hostList');wrap.innerHTML='';
+    listings.forEach(l=>{
+      const c=capInfo(l);
+      const apl=l.applicants||[];
+      let aps=apl.length? '' : '<div style="font-size:13px;color:var(--muted);margin-top:6px">まだ応募はありません。</div>';
+      apl.forEach((a,idx)=>{
+        const done=a.status==="completed";
+        aps+=`<div class="applicant"><span class="nm">${a.name}${a.name===ME?'（あなた）':''}</span>
+          <span class="st">${done?'✓ 完了'+(a.hostReview?'・感想あり':''):'参加予定'}</span>
+          ${done?'<span class="minibtn done">完了済み</span>':`<button class="minibtn" onclick="complete(${l.id},${idx})">完了にする</button>`}</div>`;
+      });
+      wrap.innerHTML+=`<div class="hpost"><span class="tag ${l.tagc}">${l.tag}</span>
+        <h3>${l.title}</h3>
+        <div class="meta">👤 ${l.who}｜🕒 ${l.when}</div>${c.badge}
+        ${aps}</div>`;
+    });
+  }
+  function complete(id,idx){
+    const l=listings.find(x=>x.id===id);const a=l.applicants[idx];
+    a.status="completed";
+    renderAll();
+    // ホストの感想入力 → 続けてサポーターの感想（みきのとき）
+    openReview(`${l.who}さん → ${a.name}さんへ`,
+      `お手伝いが完了しました。${a.name}さんへのひとこと感想をどうぞ（任意）。お礼のサウルコインもこのタイミングで手渡しを。`,
+      (txt)=>{ a.hostReview=txt; renderAll();
+        if(a.name===ME){
+          openReview(`${a.name}さん → ${l.who}さんへ`,`あなた（${ME}）から${l.who}さんへのひとこともどうぞ（任意）。`,
+            (t2)=>{a.supReview=t2;renderAll(); afterComplete(l);});
+        } else { afterComplete(l); }
+      });
+  }
+  function afterComplete(l){
+    if(l.who in seedPair || listings.some(x=>x.who===l.who)){
+      const cnt=pairCount(l.who);
+      if(cnt>=THRESHOLD && l.applicants.some(a=>a.name===ME&&a.status==="completed")){
+        setTimeout(()=>alert(`🤝 ${l.who}さんと${cnt}回ご一緒しました！\nこのペアは「直接型」に移行しました。次回からは運営を介さず直接やり取りできます。`),200);
+      }
+    }
+  }
+
+  // ---- review modal ----
+  let reviewCb=null;
+  function openReview(title,desc,cb){
+    document.getElementById('mTitle').textContent=title;
+    document.getElementById('mDesc').textContent=desc;
+    document.getElementById('mText').value="";
+    reviewCb=cb;document.getElementById('modal').classList.add('show');
+  }
+  document.getElementById('mSave').onclick=()=>{
+    const t=document.getElementById('mText').value.trim();
+    document.getElementById('modal').classList.remove('show');
+    if(reviewCb)reviewCb(t);reviewCb=null;
+  };
+
+  // ---- new listing ----
+  document.getElementById('toggleForm').onclick=()=>{const f=document.getElementById('newForm');f.style.display=f.style.display==='none'?'block':'none';};
+  document.getElementById('createBtn').onclick=()=>{
+    const g=id=>document.getElementById(id).value;
+    const date=g('f-date');const d=new Date(date);
+    const w=g('f-when')||'';
+    const addListing=(imgData)=>{
+      listings.push({id:nextId++,bg:"#f0e3d0",tag:"お店",tagc:"",date:date,cap:Number(g('f-cap'))||1,img:imgData||'',deadline:g('f-deadline')||'',
+        who:g('f-who')||'ホスト',ava:"🏠",title:g('f-title')||'無題の募集',place:g('f-place')||'',
+        when:`${d.getMonth()+1}/${d.getDate()} ${w}`,reward:g('f-reward')||'',detail:g('f-detail')||'',bring:'',applicants:[]});
+      alert("募集を出しました。一覧・カレンダー・ホスト画面に反映されます。");
+      document.getElementById('newForm').style.display='none';renderAll();
+    };
+    const file=document.getElementById('f-img').files[0];
+    if(file){const r=new FileReader();r.onload=e=>addListing(e.target.result);r.readAsDataURL(file);}
+    else addListing('');
+  };
+
+  // ---- nav ----
+  function renderAll(){renderCards();renderCalendar();renderDay();renderHost();}
+  function show(v){
+    document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id===v));
+    document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>show(b.dataset.v));
+  document.querySelectorAll('.segbtn').forEach(b=>b.onclick=()=>{
+    const m=b.dataset.m;
+    document.querySelectorAll('.segbtn').forEach(x=>x.classList.toggle('active',x===b));
+    document.getElementById('mode-cards').style.display=m==='cards'?'block':'none';
+    document.getElementById('mode-cal').style.display=m==='cal'?'block':'none';
+  });
+  document.getElementById('prevM').onclick=()=>{viewM--;if(viewM<0){viewM=11;viewY--;}renderCalendar();};
+  document.getElementById('nextM').onclick=()=>{viewM++;if(viewM>11){viewM=0;viewY++;}renderCalendar();};
+  const FORM_URL="https://airtable.com/appkqwkVrbW3A965j/paglZz0NEk0fOmTZK/form";
+  document.getElementById('submitBtn').onclick=()=>{
+    window.open(FORM_URL,"_blank");
+    document.getElementById('okMsg').style.display='block';
+  };
+
+  // ホスト画面は非公開。運営だけがアクセスする隠し導線：
+  //  ・URLの末尾に #host を付けて開く
+  //  ・フッターを3回つづけてクリック
+  function openHost(){show('host');}
+  if(location.hash==='#host') setTimeout(openHost,100);
+  window.addEventListener('hashchange',()=>{if(location.hash==='#host')openHost();});
+  let footTaps=0,footTimer=null;
+  const foot=document.getElementById('foot');
+  if(foot) foot.addEventListener('click',()=>{
+    footTaps++; clearTimeout(footTimer);
+    footTimer=setTimeout(()=>{footTaps=0;},800);
+    if(footTaps>=3){footTaps=0;openHost();}
+  });
+
+  renderAll();
+
+  // 公開後：Vercelの窓口(/api/listings)からAirtableの募集を読み込む。
+  // 取得できれば本物のデータに差し替え。失敗時（ローカル閲覧など）はサンプルのまま。
+  (async function loadListings(){
+    try{
+      const r=await fetch('/api/listings',{cache:'no-store'});
+      if(!r.ok) return;
+      const d=await r.json();
+      if(d && Array.isArray(d.listings) && d.listings.length){
+        listings = d.listings;
+        renderAll();
+      }
+    }catch(e){ /* オフライン/未デプロイ時はサンプル表示のまま */ }
+  })();
+</script>
+</body>
+</html>
