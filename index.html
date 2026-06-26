@@ -369,7 +369,7 @@
   // ---- calendar ----
   const MONTHS=["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
   const todayStr=new Date().toISOString().slice(0,10);
-  let viewY=2026,viewM=5,selDate=null;
+  const _now=new Date(); let viewY=_now.getFullYear(),viewM=_now.getMonth(),selDate=null;
   const ymd=(y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   function renderCalendar(){
     document.getElementById('calMonth').textContent=`${viewY}年 ${MONTHS[viewM]}`;
