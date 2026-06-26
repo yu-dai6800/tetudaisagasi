@@ -392,7 +392,7 @@
     if(!items.length){p.innerHTML=`<div class="dayTitle">${lbl} の募集</div><div class="empty">この日の募集はまだありません。</div>`;return;}
     let html=`<div class="dayTitle">${lbl} の募集（${items.length}件）</div><div class="grid">`;
     items.forEach(l=>{const c=capInfo(l);
-      html+=`<div class="card${c.full?' isfull':''}" onclick="openDetail(${l.id})"><div class="ph" style="background:${l.bg}">${phContent(l)}</div>
+      html+=`<div class="card${c.full?' isfull':''}" onclick="openDetail('${l.id}')"><div class="ph" style="background:${l.bg}">${phContent(l)}</div>
         <div class="body"><span class="tag ${l.tagc}">${l.tag}</span><h3>${l.title}</h3>
         <div class="meta">📍 ${l.place}</div><div class="meta">🕒 ${l.when}</div>${c.badge}
         <div class="reward">🎁 お礼：${l.reward}</div></div></div>`;});
@@ -410,7 +410,7 @@
         const done=a.status==="completed";
         aps+=`<div class="applicant"><span class="nm">${a.name}${a.name===ME?'（あなた）':''}</span>
           <span class="st">${done?'✓ 完了'+(a.hostReview?'・感想あり':''):'参加予定'}</span>
-          ${done?'<span class="minibtn done">完了済み</span>':`<button class="minibtn" onclick="complete(${l.id},${idx})">完了にする</button>`}</div>`;
+          ${done?'<span class="minibtn done">完了済み</span>':`<button class="minibtn" onclick="complete('${l.id}',${idx})">完了にする</button>`}</div>`;
       });
       wrap.innerHTML+=`<div class="hpost"><span class="tag ${l.tagc}">${l.tag}</span>
         <h3>${l.title}</h3>
