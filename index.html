@@ -330,7 +330,7 @@
     else if(c.full) btn=`<button class="submit" disabled>定員に達しました</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">この募集は定員に達したため応募できません。</p>`;
     else btn=`<button class="submit" onclick="window.open(FORM_URL,'_blank')">このお手伝いに応募する →</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">応募フォーム（Airtable）が新しいタブで開きます。気になる募集の日時を添えて送ってください。運営から折り返しご連絡します。</p>`;
     // 感想（お互い見える）
-    const done=l.applicants.filter(a=>a.status==="completed"&&(a.hostReview||a.supReview));
+    const done=(l.applicants||[]).filter(a=>a.status==="completed"&&(a.hostReview||a.supReview));
     let revs="";
     if(done.length){
       revs=`<div class="reviews"><b style="font-size:13px">参加した人とホストの声</b>`;
