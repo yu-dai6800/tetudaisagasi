@@ -1,4 +1,4 @@
-// てつだいさがし — Airtableの「募集」を読み取って公開用JSONを返す窓口（Vercel Serverless Function）
+/ てつだいさがし — Airtableの「募集」を読み取って公開用JSONを返す窓口（Vercel Serverless Function）
 // 鍵(AIRTABLE_TOKEN)はVercelの環境変数にだけ置く。ブラウザには出さない。
 // 返すのは募集の公開情報だけ。サポーターの本名・連絡先などの個人情報は一切返さない。
 
@@ -41,6 +41,7 @@ export default async function handler(req, res){
         id:    rec.id,
         title: f['タイトル'] || '無題の募集',
         who:   (Array.isArray(f['ホスト名']) ? f['ホスト名'][0] : f['ホスト名']) || '',
+        place: f['場所'] || '',
         date:  dj.ymd,
         when:  `${dj.label} ${f['時間'] || ''}`.trim(),
         cap:   f['定員'] || 0,
