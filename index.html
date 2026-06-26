@@ -45,7 +45,7 @@
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
   .card:hover{transform:translateY(-3px)}
-  .card .ph{height:130px;display:flex;align-items:center;justify-content:center;font-size:42px;overflow:hidden}
+  .card .ph{height:210px;display:flex;align-items:center;justify-content:center;font-size:42px;overflow:hidden}
   .ph img.phimg,.top img.phimg{width:100%;height:100%;object-fit:cover;display:block}
   .ph svg{width:88px;height:88px}
   .top svg{width:120px;height:120px}
@@ -145,7 +145,7 @@
 <body>
 <header>
   <nav>
-    <div class="logo">🧇 てつだいさがし <small>by saule works</small></div>
+    <div class="logo">てつだいさがし <small>by saule works</small></div>
     <button class="navbtn active" data-v="home">ホーム</button>
     <button class="navbtn" data-v="list">お手伝い募集</button>
     <button class="navbtn" data-v="register">登録する</button>
@@ -288,7 +288,14 @@
     if(t==='地域活動') return wrap(`<circle cx="88" cy="33" r="8.5" fill="#f4c95e"/><path d="M88 18 v-6 M104 33 h6 M99 22 l4 -4 M99 44 l4 4" stroke="#f0a93c" fill="none"/><rect x="32" y="60" width="30" height="29" rx="2.5" fill="#79b1a1"/><path d="M29 60 l16 -16 l16 16 z" fill="#e8894e"/><rect x="63" y="51" width="26" height="38" rx="2.5" fill="#f0b95e"/><path d="M60 51 l14.5 -14 l14.5 14 z" fill="#d96f3c"/><rect x="42" y="73" width="9" height="16" rx="1" fill="#fff"/>`);
     return wrap(`<rect x="33" y="40" width="54" height="52" rx="13" fill="#f0b95e"/><line x1="33" y1="58" x2="87" y2="58"/><line x1="33" y1="75" x2="87" y2="75"/><line x1="51" y1="40" x2="51" y2="92"/><line x1="69" y1="40" x2="69" y2="92"/><path d="M55 34 c5 -5 -3 -9 1 -15" fill="none"/><path d="M68 34 c5 -5 -3 -9 1 -15" fill="none"/>`);
   }
-  function phContent(l){ return l.img ? `<img class="phimg" src="${l.img}" alt="">` : illust(l); }
+  function imgPosCss(p){
+    if(p==='上'||p==='top') return 'center top';
+    if(p==='下'||p==='bottom') return 'center bottom';
+    if(p==='左'||p==='left') return 'left center';
+    if(p==='右'||p==='right') return 'right center';
+    return 'center';
+  }
+  function phContent(l){ return l.img ? `<img class="phimg" style="object-position:${imgPosCss(l.imgPos)}" src="${l.img}" alt="">` : illust(l); }
 
   // サウルとそのホストの完了回数（過去seed + ライブ）
   function pairCount(host){
@@ -308,7 +315,7 @@
       el.innerHTML=`<div class="ph" style="background:${l.bg}">${phContent(l)}</div>
         <div class="body"><span class="tag ${l.tagc}">${l.tag}</span><h3>${l.title}</h3>
         <div class="meta">📍 ${l.place}</div><div class="meta">🕒 ${l.when}</div>
-        ${c.badge}<div class="reward">🎁 お礼：${l.reward}</div></div>`;
+        ${c.badge}</div>`;
       el.onclick=()=>openDetail(l.id);
       wrap.appendChild(el);
     });
@@ -395,7 +402,7 @@
       html+=`<div class="card${c.full?' isfull':''}" onclick="openDetail('${l.id}')"><div class="ph" style="background:${l.bg}">${phContent(l)}</div>
         <div class="body"><span class="tag ${l.tagc}">${l.tag}</span><h3>${l.title}</h3>
         <div class="meta">📍 ${l.place}</div><div class="meta">🕒 ${l.when}</div>${c.badge}
-        <div class="reward">🎁 お礼：${l.reward}</div></div></div>`;});
+        </div></div>`;});
     p.innerHTML=html+'</div>';
   }
 
