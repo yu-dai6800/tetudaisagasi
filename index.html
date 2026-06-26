@@ -328,7 +328,7 @@
     if(mine==="applied") btn=`<button class="submit" disabled>応募済み（確定）</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">当日はよろしくお願いします。ホストが「完了」を押すと回数が進みます。</p>`;
     else if(mine==="completed") btn=`<button class="submit" disabled>参加完了 ✓</button>`;
     else if(c.full) btn=`<button class="submit" disabled>定員に達しました</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">この募集は定員に達したため応募できません。</p>`;
-    else btn=`<button class="submit" onclick="window.open(FORM_URL,'_blank')">このお手伝いに応募する →</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">応募フォーム（Airtable）が新しいタブで開きます。気になる募集の日時を添えて送ってください。運営から折り返しご連絡します。</p>`;
+    else btn=`<button class="submit" onclick="applyOpen('${l.id}')">このお手伝いに応募する →</button><p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">応募フォームが新しいタブで開きます（どの募集かは自動で入ります）。ニックネームと連絡先を入れて送ってください。</p>`;
     // 感想（お互い見える）
     const done=(l.applicants||[]).filter(a=>a.status==="completed"&&(a.hostReview||a.supReview));
     let revs="";
@@ -489,7 +489,23 @@
   });
   document.getElementById('prevM').onclick=()=>{viewM--;if(viewM<0){viewM=11;viewY--;}renderCalendar();};
   document.getElementById('nextM').onclick=()=>{viewM++;if(viewM>11){viewM=0;viewY++;}renderCalendar();};
-  const FORM_URL="https://airtable.com/appkqwkVrbW3A965j/paglZz0NEk0fOmTZK/form";
+  const FORM_URL="https://airtable.com/appkqwkVrbW3A965j/paglZz0NEk0fOmTZK/form"; // サポーター登録（一度きり）
+  const APPLY_FORM_URL="https://airtable.com/appkqwkVrbW3A965j/pagUrbG3jFX0yDJog/form"; // 応募フォーム（毎回・募集名とホストは自動入力）
+  // 応募フォームを、その募集名を自動入力した状態で開く
+  function applyOpen(id){
+    const l=listings.find(x=>x.id===id);
+    const base = APPLY_FORM_URL || FORM_URL;
+    let url = base;
+    if(APPLY_FORM_URL && l){
+      const params = [
+        'prefill_' + encodeURIComponent('応募する募集') + '=' + encodeURIComponent(`${l.title}（${l.when}）`),
+        'prefill_' + encodeURIComponent('ホスト') + '=' + encodeURIComponent(l.who || '')
+      ];
+      const sep = base.includes('?') ? '&' : '?';
+      url = `${base}${sep}${params.join('&')}`;
+    }
+    window.open(url, '_blank');
+  }
   document.getElementById('submitBtn').onclick=()=>{
     window.open(FORM_URL,"_blank");
     document.getElementById('okMsg').style.display='block';
