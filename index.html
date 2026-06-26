@@ -259,6 +259,10 @@
   // ---- helpers ----
   function appliedCount(l){return l.applied!=null?l.applied:(l.applicants?l.applicants.length:0);}
   function capInfo(l){
+    // 状態が「締切」「終了」なら締切表示
+    if(l.status==='締切'||l.status==='終了'){
+      return {full:true, badge:'<span class="cap full">定員に達しました</span>'};
+    }
     // 募集期限を過ぎていたら締切（期限日当日はまだ受付）
     if(l.deadline){
       const today=new Date(new Date().toDateString());
