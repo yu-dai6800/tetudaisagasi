@@ -2,12 +2,15 @@
 // 鍵(AIRTABLE_TOKEN)はVercelの環境変数にだけ置く。ブラウザには出さない。
 // 返すのは募集の公開情報だけ。サポーターの本名・連絡先などの個人情報は一切返さない。
 
-function dateLabel(iso){
-  if(!iso) return '';
+// 日本時間(JST)で日付を扱う。{ymd:'2026-06-29', label:'6/29(月)'} を返す
+function jstDate(iso){
+  if(!iso) return {ymd:'', label:''};
   const d = new Date(iso);
-  if(isNaN(d)) return iso;
-  const w = ['日','月','火','水','木','金','土'][d.getDay()];
-  return `${d.getMonth()+1}/${d.getDate()}(${w})`;
+  if(isNaN(d)) return {ymd:String(iso), label:String(iso)};
+  const ymd = new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Tokyo'}).format(d); // 2026-06-29
+  const wd  = new Intl.DateTimeFormat('ja-JP', {timeZone:'Asia/Tokyo', weekday:'short'}).format(d);
+  const [, m, da] = ymd.split('-');
+  return {ymd, label:`${+m}/${+da}(${wd})`};
 }
 
 export default async function handler(req, res){
@@ -33,17 +36,17 @@ export default async function handler(req, res){
     const listings = (data.records || []).map(rec => {
       const f = rec.fields || {};
       const tag = f['種別'] || 'お店';
-      // 「公開しない」状態の募集はサイトに出さない（任意運用）
+      const dj = jstDate(f['日付']);
       return {
         id:    rec.id,
         title: f['タイトル'] || '無題の募集',
         who:   (Array.isArray(f['ホスト名']) ? f['ホスト名'][0] : f['ホスト名']) || '',
-        date:  f['日付'] || '',
-        when:  `${dateLabel(f['日付'])} ${f['時間'] || ''}`.trim(),
+        date:  dj.ymd,
+        when:  `${dj.label} ${f['時間'] || ''}`.trim(),
         cap:   f['定員'] || 0,
         applied: (f['応募数'] != null ? f['応募数'] : null),
         capStatusText: f['募集状況'] || '',
-        deadline: f['募集期限'] || '',
+        deadline: jstDate(f['募集期限']).ymd,
         status: f['状態'] || '',
         reward: f['お礼'] || '',
         detail: f['内容'] || '',
@@ -55,8 +58,8 @@ export default async function handler(req, res){
         ava:    '🏠'
       };
     })
-    // 「終了」や「非公開」を隠したい場合の例（必要に応じて調整）
-    .filter(l => l.status !== '非公開');
+    // 「非公開」や、日付の無い空行（誤って増えた行など）はサイトに出さない
+    .filter(l => l.status !== '非公開' && l.date);
 
     // 60秒キャッシュ（Airtableへの問い合わせを減らす）
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
