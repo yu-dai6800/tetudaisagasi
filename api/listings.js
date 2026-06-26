@@ -52,6 +52,7 @@ export default async function handler(req, res){
         detail: f['内容'] || '',
         bring:  f['持ち物'] || '',
         img:    f['画像URL'] || '',
+        imgPos: f['画像位置'] || '',
         tag,
         tagc:   (tag === '農家' || tag === '地域活動') ? 'green' : '',
         bg:     '#f0e3d0',
