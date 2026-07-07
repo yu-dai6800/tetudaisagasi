@@ -297,6 +297,16 @@
   }
   function phContent(l){ return l.img ? `<img class="phimg" style="object-position:${imgPosCss(l.imgPos)}" src="${l.img}" alt="">` : illust(l); }
 
+  // 期限（または開催日）が過ぎた募集は自動で非表示にする
+  function isExpired(l){
+    const end = l.deadline || l.date;
+    if(!end) return false;
+    const today = new Date(new Date().toDateString());
+    const d = new Date(new Date(end).toDateString());
+    return !isNaN(d) && d < today;
+  }
+  function visibleListings(){ return listings.filter(l => !isExpired(l)); }
+
   // サウルとそのホストの完了回数（過去seed + ライブ）
   function pairCount(host){
     let c=seedPair[host]||0;
@@ -309,7 +319,9 @@
   // ---- list cards ----
   function renderCards(){
     const wrap=document.getElementById('cards');wrap.innerHTML='';
-    listings.forEach(l=>{
+    const list=visibleListings();
+    if(!list.length){wrap.innerHTML='<div class="empty">現在募集中のお手伝いはありません。</div>';return;}
+    list.forEach(l=>{
       const c=capInfo(l);
       const el=document.createElement('div');el.className='card'+(c.full?' isfull':'');
       el.innerHTML=`<div class="ph" style="background:${l.bg}">${phContent(l)}</div>
@@ -384,7 +396,7 @@
     const first=new Date(viewY,viewM,1).getDay(), days=new Date(viewY,viewM+1,0).getDate();
     for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cell';grid.appendChild(e);}
     for(let d=1;d<=days;d++){
-      const ds=ymd(viewY,viewM,d), has=listings.some(l=>l.date===ds);
+      const ds=ymd(viewY,viewM,d), has=visibleListings().some(l=>l.date===ds);
       const e=document.createElement('div');
       e.className='cell day'+(has?' has':'')+(ds===todayStr?' today':'')+(ds===selDate?' sel':'');
       e.innerHTML=`<span>${d}</span>`+(has?'<span class="dot"></span>':'');
@@ -395,7 +407,7 @@
   function renderDay(){
     const p=document.getElementById('dayPanel');
     if(!selDate){p.innerHTML='';return;}
-    const items=listings.filter(l=>l.date===selDate), lbl=selDate.replace(/-/g,'/');
+    const items=visibleListings().filter(l=>l.date===selDate), lbl=selDate.replace(/-/g,'/');
     if(!items.length){p.innerHTML=`<div class="dayTitle">${lbl} の募集</div><div class="empty">この日の募集はまだありません。</div>`;return;}
     let html=`<div class="dayTitle">${lbl} の募集（${items.length}件）</div><div class="grid">`;
     items.forEach(l=>{const c=capInfo(l);
